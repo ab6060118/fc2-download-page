@@ -2,6 +2,12 @@ import * as React from 'react';
 import LoginPage from './login_page'
 import Home from './home'
 import Firebase, { provider } from '../libs/firebase'
+import {
+  HashRouter as Router,
+  Route,
+  Redirect,
+  Switch,
+} from "react-router-dom";
 
 interface User{
   username:string
@@ -17,6 +23,19 @@ interface AppState {
   user:any
 }
 
+const PrivateRoute = ({ component: Component, ...rest }:any) => {
+  return (
+    <Route {...rest} render={props => Firebase.auth().currentUser ? (
+      <Component {...props} />
+    ) : (
+      <Redirect to={{
+        pathname: "/login",
+        state: { from: props.location }
+      }} />
+    )}/>
+  )
+}
+
 export default class App extends React.PureComponent<AppProps,AppState> {
   constructor(props:AppProps) {
     super(props)
@@ -24,39 +43,30 @@ export default class App extends React.PureComponent<AppProps,AppState> {
       isLogin: false,
       user:undefined
     }
-    this.setLoginState = this.setLoginState.bind(this)
   }
 
   componentDidMount() {
-    Firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({ user, isLogin: true, })
-      } else {
-        this.setState({ user: undefined, isLogin: false,
-        })
-      }
-    });
-  }
-
-  setLoginState(token:string, user:any) {
-    if(!user) return;
-    this.setState({
-      user: user,
-      isLogin: true
-    })
+/*     console.log(Firebase); */
+    // Firebase.auth().onAuthStateChanged((user) => {
+      // if (user) {
+        // this.setState({ user, isLogin: true, })
+      // } else {
+        // this.setState({ user: undefined, isLogin: false,
+        // })
+      // }
+    /* }); */
   }
 
   render() {
     let { isLogin, user } = this.state
 
     return (
-      <div>
-        {(isLogin && user) ? (
-          <Home />
-        ) : (
-          <LoginPage setLoginState={this.setLoginState}/>
-        )}
-      </div>
-    )
+      <Router>
+        <Switch>
+          <Route path='/login' component={LoginPage} />
+          <PrivateRoute path='/' component={Home} />
+        </Switch>
+      </Router>
+      )
   }
 }
