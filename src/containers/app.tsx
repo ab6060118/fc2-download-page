@@ -1,5 +1,6 @@
 import * as React from 'react';
 import LoginPage from './login_page'
+import Home from './home'
 import Firebase, { provider } from '../libs/firebase'
 
 interface User{
@@ -27,7 +28,14 @@ export default class App extends React.PureComponent<AppProps,AppState> {
   }
 
   componentDidMount() {
-    console.log(Firebase.auth().currentUser);
+    Firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ user, isLogin: true, })
+      } else {
+        this.setState({ user: undefined, isLogin: false,
+        })
+      }
+    });
   }
 
   setLoginState(token:string, user:any) {
@@ -44,7 +52,7 @@ export default class App extends React.PureComponent<AppProps,AppState> {
     return (
       <div>
         {(isLogin && user) ? (
-          <div>login success</div>
+          <Home />
         ) : (
           <LoginPage setLoginState={this.setLoginState}/>
         )}

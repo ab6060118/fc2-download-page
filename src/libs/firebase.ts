@@ -13,14 +13,6 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 firebase.initializeApp(config);
 
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    console.log(user);
-  } else {
-    console.log('no');
-  }
-});
-
 export default firebase
 
 export {
