@@ -3,10 +3,11 @@ import LoginPage from './login_page'
 import Home from './home'
 import Firebase, { provider } from '../libs/firebase'
 import {
-  HashRouter as Router,
   Route,
   Redirect,
   Switch,
+  withRouter,
+  RouteComponentProps
 } from "react-router-dom";
 
 interface User{
@@ -16,7 +17,7 @@ interface User{
   email:string
 }
 
-interface AppProps {}
+interface AppProps extends RouteComponentProps {} 
 
 interface AppState {
   isLogin:boolean
@@ -36,7 +37,7 @@ const PrivateRoute = ({ component: Component, ...rest }:any) => {
   )
 }
 
-export default class App extends React.PureComponent<AppProps,AppState> {
+class App extends React.PureComponent<AppProps,AppState> {
   constructor(props:AppProps) {
     super(props)
     this.state = {
@@ -46,27 +47,27 @@ export default class App extends React.PureComponent<AppProps,AppState> {
   }
 
   componentDidMount() {
-/*     console.log(Firebase); */
-    // Firebase.auth().onAuthStateChanged((user) => {
-      // if (user) {
-        // this.setState({ user, isLogin: true, })
-      // } else {
-        // this.setState({ user: undefined, isLogin: false,
-        // })
-      // }
-    /* }); */
+    let { history } = this.props
+    Firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        history.push('/')
+      } else {
+        history.push('/login')
+      }
+    });
   }
 
   render() {
     let { isLogin, user } = this.state
 
+    console.log(this.props);
+
     return (
-      <Router>
         <Switch>
           <Route path='/login' component={LoginPage} />
           <PrivateRoute path='/' component={Home} />
         </Switch>
-      </Router>
       )
   }
 }
+export default withRouter(App)
